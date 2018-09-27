@@ -1,0 +1,15 @@
+[submodule "docs/PayloadsAllTheThings"]
+	path = docs/PayloadsAllTheThings
+	url = https://github.com/swisskyrepo/PayloadsAllTheThings.git
+[submodule "recon/massrecon"]
+	path = recon/massrecon
+	url = https://github.com/mikaelkall/massrecon.git
+[submodule "tools/debug/peda"]
+	path = tools/debug/peda
+	url = https://github.com/longld/peda.git
+[submodule "exploit/windows/windows-kernel-exploits"]
+	path = exploit/windows/windows-kernel-exploits
+	url = https://github.com/SecWiki/windows-kernel-exploits.git
+[submodule "exploit/windows/RottenPotato"]
+	path = exploit/windows/RottenPotato
+	url = https://github.com/foxglovesec/RottenPotato.git

@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if [ -z ${1} ]; then
+    echo "Usage: ${0} <user@hostname>"
+    exit
+fi
+
+ssh-copy-id -i ~/.ssh/id_rsa.pub ${1}
