@@ -6,6 +6,10 @@
 https://gtfobins.github.io/
 ```
 
+## Bybass rbash with ssh
+
+ssh user@server -t "bash --noprofile"
+
 ## Use echo command with glob if ls is not present
 ## to list files have access to in the restricted shell
 
