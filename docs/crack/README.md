@@ -42,3 +42,12 @@ fcrackzip -v -D -u -p ./rockyou.txt ./backup.zip
 ```sh
 python2 /usr/share/rsactftool/RsaCtfTool.py --publickey ./rootauthorizedsshkey.pub --private > rootkey.rsa
 ```
+
+## Crack pwdump windows LM / NT hashes.
+
+Extract hashes from pwdump.txt and run this command
+
+```
+hashcat -m 1000 -a 0 -o results.txt --remove ./hashes.hash /usr/share/wordlists/SecLists/Passwords/Leaked-Databases/rockyou.txt
+```
+
