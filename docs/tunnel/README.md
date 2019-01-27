@@ -13,11 +13,18 @@ alt ~ space + shift+c
 
 ## Access like this.
 
+```sh
 nc localhost -p \<local port\>
-
+```
 
 ## sshuttle ( forward everything)
 
- ```sh
+```sh
 sshuttle --dns -r <username>@hostname 0.0.0.0/0 
- ```
+```
+
+# Execute this on remote server to tunnel back 445 to host. ( Note first configure SSH to listen on port 80 on host )
+
+```sh
+plink.exe -l root -pw password -R 445:127.0.0.1:445 10.11.0.xxx -P 80 #
+```
