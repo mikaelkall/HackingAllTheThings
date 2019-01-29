@@ -87,15 +87,14 @@ func main() {
 		LPASSWORD = *lpassword
 	}
 
-	// Should be replaced to the plink.exe command
-	command := []string{"echo", PORTUNNEL, " ", LPORT, " ", " ", LHOST, " ", LPASSWORD}
+	// This is ugly I need to spend some time and learn howto do this correctly.
+	command := []string{"plink.exe"," ","-l"," ","root"," ", "-pw"," ", LPASSWORD," ","-R"," ",PORTUNNEL":127.0.0.1:",PORTUNNEL," ",LHOST," ","-P"," ", LPORT}
 
-	err, out, errout := Shellout(strings.Join(command, " "))
+	err, out, errout := Shellout(strings.Join(command, ""))
 	if err != nil {
 		log.Printf("error: %v\n", err)
 	}
 
 	fmt.Println(out)
 	fmt.Println(errout)
-
 }
