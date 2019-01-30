@@ -11,7 +11,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"strings"
+	"bufio"
 )
 
 func checkErr(err error) {
@@ -47,7 +47,7 @@ Usage: tclient <arguments>
 func Shellout(command string) (error, string, string) {
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
-	cmd := exec.Command("bash", "-c", command)
+	cmd := exec.Command("cmd", "/C", command)
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 	err := cmd.Run()
@@ -58,9 +58,9 @@ func main() {
 
 	/* Settings */
 	var PORTUNNEL = "445"
-	var LHOST = "127.0.0.1"
+	var LHOST = "10.100.12.64"
 	var LPORT = "80"
-	var LPASSWORD = "password"
+	var LPASSWORD = "ZmY1NzkzMjhlYTFjZDU3ODA4Y2JmZT"
 
 	portTunnel := flag.String("p", "", "Port to tunnel")
 	lport := flag.String("P", "", "Ovveride lport")
@@ -86,15 +86,19 @@ func main() {
 	if *lpassword != "" {
 		LPASSWORD = *lpassword
 	}
+ 
+	command := " echo y | plink.exe -l root -pw " + LPASSWORD + " -R " + PORTUNNEL + ":127.0.0.1:" + PORTUNNEL + " " + LHOST + " -P " + LPORT
+	fmt.Println(command)
 
-	// This is ugly I need to spend some time and learn howto do this correctly.
-	command := []string{"plink.exe"," ","-l"," ","root"," ", "-pw"," ", LPASSWORD," ","-R"," ",PORTUNNEL":127.0.0.1:",PORTUNNEL," ",LHOST," ","-P"," ", LPORT}
-
-	err, out, errout := Shellout(strings.Join(command, ""))
+	err, out, errout := Shellout(command)
 	if err != nil {
 		log.Printf("error: %v\n", err)
 	}
 
 	fmt.Println(out)
 	fmt.Println(errout)
+
+	buf := bufio.NewReader(os.Stdin)
+	fmt.Print("Press any key to kill tunnel.")	
+	buf.ReadBytes('\n')
 }
