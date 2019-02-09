@@ -426,6 +426,7 @@ Simplifies payload creation and listener.
   <~~~~~~~~~~~~~~~~~~~~~~~~[Misc]~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~>
                               |
     httpsrv  <HOST>  <PORT>   |  Http server listen in current dir
+    phpsrv   <HOST>  <PORT>   |  Php server listen in current dir
                               |
   <~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~>
 
@@ -461,6 +462,15 @@ if __name__ == '__main__':
             sys.exit(0)
 
         os.system("python -m http.server --bind %s %s" % (lhost, lport))
+        sys.exit(0)
+
+    if type == 'phpsrv':
+
+        if int(lport) < 1025:
+            os.system("sudo php -S %s:%s" % (lhost, lport))
+            sys.exit(0)
+
+        os.system("php -S %s:%s" % (lhost, lport))
         sys.exit(0)
 
     if type == 'winhttp':
