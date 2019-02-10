@@ -1,5 +1,11 @@
 # Privesc
 
+# Look for suid binaries
+
+```
+find / -user root -perm -4000 -exec ls -ldb {} \; 2>/dev/null
+```
+
 ## Privesc method when have read access to /etc/passwd
 
 Probably never happends but document it just in case as I just experienced this on htb machine
