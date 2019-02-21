@@ -9,3 +9,7 @@ $ socat TCP-LISTEN:6666,fork,reuseaddr exec:/command
 socat TCP-LISTEN:9999,reuseaddr,fork,su=nobody TCP:nighter.se:80
  
 socat TCP-LISTEN:80,fork TCP:\<address\>:80
+
+## Bind interactive shell 
+
+socat TCP-LISTEN:4444,fork,reuseaddr exec:"bash -i",pty,stderr,setsid,sigint,sane
