@@ -12,6 +12,10 @@ shift
 
 for PORT in "${@}";
 do
-    nmap -Pn --max-retries 0 -p "${PORT}" "${HOST}"
+    nmap -PN --max-retries 0 -p "${PORT}" "${HOST}"
     sleep 0.5
 done
+
+echo -e "\e[32m[+]\e[34m Checking for new ports with nmap ...\e[39m"
+sleep 3
+nmap -sT -p- -r -n $HOST --open | grep open
