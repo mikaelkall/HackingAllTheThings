@@ -24,3 +24,5 @@ sudo nmap -p445 --script=smb-enum-shares.nse ${1} -P0
 sudo nmap -p445 --script=smb-ls --script-args 'share=c$<Plug>PeepOpenath=\temp'
 sudo nmap -p445 --script=smb-enum-users.nse ${1} -P0
 
+sudo nmap -p445 --script smb2-vuln-uptime --script-args smb2-vuln-uptime.skip-os=true ${1} -P0
+
