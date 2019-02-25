@@ -17,8 +17,9 @@ sudo nmap -p445 --script=smb-vuln-ms08-067.nse ${1} -P0
 sudo nmap -p445 --script=smb-vuln-ms07-029.nse ${1} -P0
 sudo nmap -p445 --script=smb-vuln-ms06-025.nse ${1} -P0
 sudo nmap -sU -p U:137 --script=smb-vuln-ms08-067.nse ${1} -P0
-sudo nmap -sU -p U:137,T:139 --script=smb-vuln-ms07-029.nse ${1} -P0
-sudo nmap -sU -p U:137,T:139 --script=smb-vuln-ms06-025.nse ${1} -P0
+
+sudo nmap -p U:137,T:139 --script=smb-vuln-ms07-029.nse ${1} -P0
+sudo nmap -p U:137,T:139,T:445 --script=smb-vuln-ms06-025.nse ${1} -P0
 
 sudo nmap -p445 --script=smb-enum-shares.nse ${1} -P0
 sudo nmap -p445 --script=smb-ls --script-args 'share=c$<Plug>PeepOpenath=\temp'
