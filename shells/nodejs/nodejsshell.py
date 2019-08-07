@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python2
 # Generator for encoded NodeJS reverse shells
 # Based on the NodeJS reverse shell by Evilpacket
 # https://github.com/evilpacket/node-shells/blob/master/node_revshell.js
