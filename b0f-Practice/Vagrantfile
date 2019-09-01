@@ -1,0 +1,18 @@
+Vagrant.configure("2") do |config|
+
+  config.vm.define "offsecXP" do |offsecXP|                                                                                                                                                                                                                                                     
+     offsecXP.vm.hostname = 'offsecXP'
+     offsecXP.vm.box = "Windows32XP_Offsec_Practice"
+     offsecXP.vm.box_url = "http://vagrant.nighter.se/Windows32XP_Offsec_Practice.box"
+     offsecXP.vm.network "public_network"
+     offsecXP.vm.guest = :windows
+     offsecXP.vm.communicator = "winrm"
+     offsecXP.vm.provision "shell", inline: "net use X: \\\\vboxsrv\\vagrant"
+  end 
+
+   config.vm.provider "virtualbox" do |v|                                                                                                                                                                                                                                                            
+       v.gui = true                                                                                                                                                                                                                                                                                  
+       v.name = "WindowsXP32_Offsec_Practice"                                                                                                                                                                                                                                                        
+   end                       
+
+end
