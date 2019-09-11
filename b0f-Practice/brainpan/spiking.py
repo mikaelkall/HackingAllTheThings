@@ -13,3 +13,4 @@ for string in buffer:
      s.recv(1024) 
      s.send(string + '\r\n')
      s.close()
+
