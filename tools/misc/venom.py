@@ -32,7 +32,7 @@ import argparse
 import base64
 import binascii
 import urllib as ul
-
+import netifaces as ni
 
 # Handler to exist cleanly on ctrl+C
 def signal_handler(signal, frame):
@@ -589,6 +589,16 @@ if __name__ == '__main__':
     type = sys.argv[1]
     lhost = sys.argv[2]
     lport = sys.argv[3]
+
+    try:
+        socket.inet_aton(lhost)
+    except socket.error:
+        try:
+            ni.ifaddresses(lhost)
+            lhost = ni.ifaddresses(lhost)[ni.AF_INET][0]['addr']
+        except:
+            print('[-] No such interface: %s' % lhost)
+            sys.exit(1)
 
     if type == 'xpcmdi':
         _command = "0x%s" % binascii.hexlify(lport)
