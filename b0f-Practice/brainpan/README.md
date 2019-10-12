@@ -1,6 +1,6 @@
 # brainpan
 
-## Methology
+## Metholjogy
 
 -- Spiking
 
