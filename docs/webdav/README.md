@@ -1,5 +1,3 @@
-# Webdav
-
 ## Webdav enumeration
 
 davtest -url http://xx.xx.xx.xx
