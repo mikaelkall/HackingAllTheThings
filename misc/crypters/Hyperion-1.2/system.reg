@@ -29745,8 +29745,8 @@ WINE REGISTRY Version 2
 "CommonPictures"=str(2):"%PUBLIC%\\Pictures"
 "CommonVideo"=str(2):"%PUBLIC%\\Videos"
 
-[Software\\Microsoft\\Windows\\CurrentVersion\\Fonts] 1574523950
-#time=1d5a21514bfcc6c
+[Software\\Microsoft\\Windows\\CurrentVersion\\Fonts] 1574525547
+#time=1d5a218cc94b160
 "@Droid Sans Fallback (TrueType)"="Z:\\usr\\share\\fonts\\truetype\\droid\\DroidSansFallbackFull.ttf"
 "Bitstream Vera Sans (TrueType)"="Z:\\usr\\share\\fonts\\truetype\\ttf-bitstream-vera\\Vera.ttf"
 "Bitstream Vera Sans Bold (TrueType)"="Z:\\usr\\share\\fonts\\truetype\\ttf-bitstream-vera\\VeraBd.ttf"
@@ -32804,8 +32804,8 @@ WINE REGISTRY Version 2
 [Software\\Microsoft\\Windows NT\\CurrentVersion\\FontMapper] 1568476781
 #time=1d56b156b14141a
 
-[Software\\Microsoft\\Windows NT\\CurrentVersion\\Fonts] 1574523950
-#time=1d5a21514bfc97e
+[Software\\Microsoft\\Windows NT\\CurrentVersion\\Fonts] 1574525547
+#time=1d5a218cc94afc6
 "@Droid Sans Fallback (TrueType)"="Z:\\usr\\share\\fonts\\truetype\\droid\\DroidSansFallbackFull.ttf"
 "Bitstream Vera Sans (TrueType)"="Z:\\usr\\share\\fonts\\truetype\\ttf-bitstream-vera\\Vera.ttf"
 "Bitstream Vera Sans Bold (TrueType)"="Z:\\usr\\share\\fonts\\truetype\\ttf-bitstream-vera\\VeraBd.ttf"
@@ -34914,7 +34914,7 @@ WINE REGISTRY Version 2
 "ComSpec"=str(2):"C:\\windows\\system32\\cmd.exe"
 "NUMBER_OF_PROCESSORS"="4"
 "OS"="Windows_NT"
-"PATH"=str(2):"C:\\Python27\\;C:\\Python27\\Scripts;C:\\windows\\system32;C:\\windows;C:\\windows\\system32\\wbem;Z:\\usr\\lib\\gcc\\i686-w64-mingw32\\8.3-posix;Z:\\usr\\i686-w64-mingw32\\lib"
+"PATH"=str(2):"C:\\Python27\\;C:\\Python27\\Scripts;C:\\windows\\system32;C:\\windows;C:\\windows\\system32\\wbem;Z:\\usr\\lib\\gcc\\i686-w64-mingw32\\8.3-posix;Z:\\usr\\i686-w64-mingw32\\lib;Z:\\usr\\share\\windows-binaries\\hyperion\\FasmAES-1.0"
 "PATHEXT"=".COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH"
 "PROCESSOR_ARCHITECTURE"="x86"
 "PROCESSOR_IDENTIFIER"="x86 Family 23 Model 8 Stepping 2, GenuineIntel"

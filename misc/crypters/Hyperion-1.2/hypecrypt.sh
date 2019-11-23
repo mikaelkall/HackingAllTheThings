@@ -24,7 +24,7 @@ main()
 	[ ! -e './hyperion.exe' ] && __puts 'error' 'Cannot find the hyperion.exe binary' && exit
 	[ ! -e "${1}" ] && __puts 'error' "Cannot find file to encrypt: ${1}" && exit
 
-	wine ./hyperion.exe "${1}" "{2}"
+	wine ./hyperion.exe "${1}" "${2}"
 }
 
 ####                                                                                                                                                                                                                                         
