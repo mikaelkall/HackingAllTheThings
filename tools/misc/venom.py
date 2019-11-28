@@ -12,7 +12,7 @@
 # 14/06/2018                                                                                                #
 #                                                                                                           #
 # DESCRIPTION                                                                                               #
-#  Just a wrapper around msvenom to simplify payload creation                                               #
+#  Managed various payloads and listeners                                                                   #
 #                                                                                                           #
 # nighter - nighter@nighter.se                                                                              #
 #                                                                                                           #
@@ -228,7 +228,7 @@ def msfvenom(type, lhost, lport):
         print("[+] %s" % command)
 
     os.system(command)
-    print("[+] Saved %s_payload" % type)
+    print("[+] Saved: %s" % str(command).split('/')[-1])
 
     if type == 'mperl64' or type == 'mperl32':
         create_perl_mem_payload(type)
