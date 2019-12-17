@@ -17,7 +17,7 @@ def spiking():
             timeout += 1
             print("Spiking with %s bytes" % len(string))
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            connect = s.connect(('192.168.1.52',9999))
+            connect = s.connect(('192.168.1.52', 9999))
             s.recv(1024)
             s.send(string + '\r\n')
             s.close()
