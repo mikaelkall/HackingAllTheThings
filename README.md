@@ -1,4 +1,4 @@
-# HackingAllTheThings
+# HackingAllTheThings- AN AMAZING COLLECTION OF KNOWLADGE
 
 ## Summary
 
