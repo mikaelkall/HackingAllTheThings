@@ -51,3 +51,8 @@ Extract hashes from pwdump.txt and run this command
 hashcat -m 1000 -a 0 -o results.txt --remove ./hashes.hash /usr/share/wordlists/SecLists/Passwords/Leaked-Databases/rockyou.txt
 ```
 
+## Crack JWT secret Key
+
+```
+hashcat jwt.txt -m 16500 /usr/share/wordlists/SecLists/Passwords/Leaked-Databases/rockyou.txt --show
+```
