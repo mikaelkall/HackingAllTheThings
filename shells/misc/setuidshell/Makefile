@@ -5,6 +5,7 @@ all:
 	gcc ./setresuid.c -ggdb -fno-stack-protector -w -z execstack -o setresuid64
 	gcc ./reverse_tcp.c -o reverse_tcp64
 	gcc ./reverse_tcp.c -m32 -o reverse_tcp32
+	gcc -shared -fPIC -o libcalc.so libcalc.c
 
 shell32:
 	gcc ./shell.c -m32 -ggdb -fno-stack-protector -w -z execstack -o shell32
